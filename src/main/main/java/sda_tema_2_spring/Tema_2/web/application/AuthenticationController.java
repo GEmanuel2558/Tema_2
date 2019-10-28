@@ -15,6 +15,7 @@ import sda_tema_2_spring.Tema_2.utils.EncryptionHelper;
 import sda_tema_2_spring.Tema_2.web.dto.TokenRequestDto;
 import sda_tema_2_spring.Tema_2.web.dto.TokenRequestWithOutUserNameDto;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class AuthenticationController {
     private ICredentialsService credentials;
 
     @PostMapping(value = "/signin")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody TokenRequestWithOutUserNameDto authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody @Valid TokenRequestWithOutUserNameDto authenticationRequest) throws Exception {
 
         String requestEmail = authenticationRequest.getEmail();
         if (null != requestEmail && 1 < requestEmail.trim().length()) {
@@ -40,7 +41,6 @@ public class AuthenticationController {
             final Optional<UserEntity> userDetails = credentials.findUserEntitiesByEmail(requestEmail);
             if (userDetails.isPresent()) {
                 if (passwordHash.equals(userDetails.get().getPassword())) {
-                    //authenticate(requestEmail, authenticationRequest.getPassword());
                     return ResponseEntity.ok(passwordHash);
                 }
             }
@@ -48,18 +48,8 @@ public class AuthenticationController {
         return ResponseEntity.notFound().build();
     }
 
-    private void authenticate(String username, String password) throws Exception {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-    }
-
     @PostMapping(value = "/signup")
-    public ResponseEntity<UserEntity> signup(@RequestBody TokenRequestDto authenticationRequest) {
+    public ResponseEntity<UserEntity> signup(@RequestBody @Valid TokenRequestDto authenticationRequest) {
         UserEntity newCreated = credentials.signup(authenticationRequest);
         return ResponseEntity.created(URI.create("http://localhost:8098/user/" + newCreated.getId())).build();
     }

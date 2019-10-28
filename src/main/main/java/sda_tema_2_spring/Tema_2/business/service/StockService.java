@@ -36,14 +36,9 @@ public class StockService implements IStockService {
     }
 
     @Transactional(readOnly = true)
-    public StockDto getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDb {
+    public StockEntity getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDb {
         Optional<StockEntity> stock = stockRepository.findById(stockId);
-        StockEntity stockEntity = stock.orElseThrow(NoInformationInTheDb::new);
-        StockDto stockDto = mapper.map(stockEntity, StockDto.class);
-        StockDetailsDto stockDetailsDto = mapper.map(stockEntity.getStockDetailsEntity(), StockDetailsDto.class);
-        //Optional<List<StockDetailsEntity>> stockDetailsEntity = stockDetailsRepository.findAllByStockEntity(stockEntity.getId());
-        stockDto.setStockDetailsDto(stockDetailsDto);
-        return stockDto;
+        return stock.orElseThrow(NoInformationInTheDb::new);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

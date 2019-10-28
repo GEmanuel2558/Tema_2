@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,9 @@ import sda_tema_2_spring.Tema_2.data.entity.StockDetailsEntity;
 import sda_tema_2_spring.Tema_2.data.entity.StockEntity;
 import sda_tema_2_spring.Tema_2.web.dto.StockDetailsDto;
 import sda_tema_2_spring.Tema_2.web.dto.StockDto;
+import sda_tema_2_spring.Tema_2.web.facade.ISocketFacade;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
@@ -36,53 +39,33 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @EnableHypermediaSupport(type = HAL)
 public class StockController {
 
-    private final IStockService stockService;
+    private final ISocketFacade socketFacade;
 
     private final ModelMapper mapper;
 
-    private final CircuitBreakerConfig circuitBreakerConfig;
-
-    public StockController(@Qualifier("ThisOne") IStockService stockService, ModelMapper mapper, CircuitBreakerConfig circuitBreakerConfig) {
-        this.stockService = stockService;
+    public StockController(ModelMapper mapper, ISocketFacade socketFacade) {
         this.mapper = mapper;
-        this.circuitBreakerConfig = circuitBreakerConfig;
+        this.socketFacade = socketFacade;
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @GetMapping("/{stockId}")
-    public ResponseEntity<StockDto> getSpecificStockWithItsDetails(@PathVariable("stockId") @NotNull @Min(value = 0) Integer stockId) {
-        Supplier<StockDto> dateSupplier = CircuitBreakerRegistry.of(circuitBreakerConfig, new RegistryEventConsumer<CircuitBreaker>() {
-            @Override
-            public void onEntryAddedEvent(EntryAddedEvent<CircuitBreaker> entryAddedEvent) {
-                System.out.println("onEntryAddedEvent");
-            }
-
-            @Override
-            public void onEntryRemovedEvent(EntryRemovedEvent<CircuitBreaker> entryRemoveEvent) {
-                System.out.println("onEntryRemovedEvent");
-            }
-
-            @Override
-            public void onEntryReplacedEvent(EntryReplacedEvent<CircuitBreaker> entryReplacedEvent) {
-                System.out.println("onEntryReplacedEvent");
-            }
-        }).circuitBreaker("Emy").decorateSupplier(() -> stockService.getAllStocksWithStockDetails(stockId));
-        Try<StockDto> result= Try.ofSupplier(dateSupplier);
-        if(result.isSuccess()) {
-            StockDto returnObject = result.get();
-            Link stockDetailsLink = linkTo(StockDetailsController.class).slash(returnObject.getStockDetailsDto().getId()).withRel("stockDetails");
-            returnObject.setStockDetailsDto(null);
-            returnObject.add(stockDetailsLink);
-            return ResponseEntity.ok(returnObject);
+    public ResponseEntity<StockDto> getSpecificStockWithItsDetails(@PathVariable("stockId") @Valid @NotNull @Min(value = 0) Integer stockId) {
+        StockEntity stockEntity = socketFacade.getSpecificStockWithItsDetails(stockId);
+        if (null != stockEntity) {
+            StockDto stockDto = mapper.map(stockEntity, StockDto.class);
+            Link stockDetailsLink = linkTo(StockDetailsController.class).slash(stockEntity.getStockDetailsEntity().getStockDetailsId()).withRel("stockDetails");
+            stockDto.add(stockDetailsLink);
+            return ResponseEntity.ok(stockDto);
         } else {
-            return (ResponseEntity<StockDto>) ResponseEntity.notFound();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PreAuthorize("hasRole('ROLE_CREATE')")
     @PostMapping("/")
     public ResponseEntity<StockDto> insertNewStockInDb(@NotNull StockDto requestStock) {
-        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
+/*        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
         StockDetailsEntity newStockDetails = mapper.map(requestStock.getStockDetailsDto(), StockDetailsEntity.class);
         newStock.setStockDetailsEntity(newStockDetails);
         newStockDetails.setStockEntity(newStock);
@@ -91,6 +74,7 @@ public class StockController {
 
         Link stockDetailsLink = linkTo(StockDetailsController.class).slash(newStock.getStockId()).withSelfRel();
         response.add(stockDetailsLink);
-        return ResponseEntity.created(URI.create(stockDetailsLink.getHref())).build();
+        return ResponseEntity.created(URI.create(stockDetailsLink.getHref())).build();*/
+        return null;
     }
 }

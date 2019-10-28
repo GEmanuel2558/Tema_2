@@ -22,10 +22,6 @@ import java.time.Duration;
 import java.util.Arrays;
 
 @SpringBootApplication(scanBasePackages = {"sda_tema_2_spring.Tema_2"})
-@EnableTransactionManagement
-@EnableSpringDataWebSupport
-@EnableWebMvc
-@EnableJpaRepositories(basePackages = {"sda_tema_2_spring.Tema_2.data.repository"})
 public class Tema2Application implements CommandLineRunner {
 
     @Autowired

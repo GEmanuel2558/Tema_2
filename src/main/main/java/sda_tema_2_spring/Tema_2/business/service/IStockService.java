@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface IStockService {
 
-    StockDto getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDb;
+    StockEntity getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDb;
 
     StockEntity insertNewStockInDb(@NotNull StockEntity requestStock);
 
