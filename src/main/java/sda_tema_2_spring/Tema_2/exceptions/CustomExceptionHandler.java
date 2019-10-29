@@ -6,7 +6,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDb;
+import sda_tema_2_spring.Tema_2.exceptions.custom.ConstraintViolationException;
+import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDbException;
 import sda_tema_2_spring.Tema_2.exceptions.model.ErrorResponse;
 
 import java.util.ArrayList;
@@ -33,9 +34,15 @@ public class CustomExceptionHandler {
     }
 
 
-    @ExceptionHandler(NoInformationInTheDb.class)
+    @ExceptionHandler(NoInformationInTheDbException.class)
     public final ResponseEntity<ErrorResponse> noInformationInTheDb() {
         ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.name(), Arrays.asList("No information on the Db"));
         return new ResponseEntity(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public final ResponseEntity<ErrorResponse> constraintViolation(Exception ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.name(), Arrays.asList(ex.getMessage()));
+        return new ResponseEntity(error, HttpStatus.CONFLICT);
     }
 }

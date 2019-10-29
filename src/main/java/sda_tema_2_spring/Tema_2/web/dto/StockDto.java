@@ -9,9 +9,9 @@ import java.util.Objects;
 public class StockDto extends RepresentationModel implements Serializable {
 
     private Integer stockId;
-    @NotNull
+    @NotNull(message = "Please set value stockName before sending the request")
     private String stockName;
-    @NotNull
+    @NotNull(message = "Please set value stockDetailsDto before sending the request")
     private StockDetailsDto stockDetailsDto;
 
     public Integer getStockId() {

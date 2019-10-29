@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sda_tema_2_spring.Tema_2.data.entity.UserEntity;
 import sda_tema_2_spring.Tema_2.data.repository.PermissionDao;
 import sda_tema_2_spring.Tema_2.data.repository.UserDao;
-import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDb;
+import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDbException;
 import sda_tema_2_spring.Tema_2.web.dto.PermissionDto;
 import sda_tema_2_spring.Tema_2.web.dto.UserDto;
 
@@ -40,7 +40,7 @@ public class UsersController {
         if (searchedUSer.isPresent()) {
             return ResponseEntity.ok(modelMapper.map(searchedUSer.get(), UserDto.class));
         } else {
-            throw new NoInformationInTheDb();
+            throw new NoInformationInTheDbException();
         }
     }
 

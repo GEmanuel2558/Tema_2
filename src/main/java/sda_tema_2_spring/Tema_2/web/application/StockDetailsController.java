@@ -13,6 +13,7 @@ import sda_tema_2_spring.Tema_2.business.service.IStockService;
 import sda_tema_2_spring.Tema_2.data.entity.StockDetailsEntity;
 import sda_tema_2_spring.Tema_2.web.dto.StockDetailsDto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class StockDetailsController {
 
     @PreAuthorize("hasRole('ROLE_READ')")
     @GetMapping("/{stockDetailsId}")
-    public ResponseEntity<StockDetailsDto> getSpecificStocDetailskWithItsDetails(@PathVariable("stockId") @NotNull @Min(value = 0) Integer stockDetailsId) {
+    public ResponseEntity<StockDetailsDto> getSpecificStockDetailskWithItsDetails(@PathVariable("stockDetailsId") @Valid @NotNull @Min(value = 0) Integer stockDetailsId) {
         Optional<StockDetailsEntity> searchedStockDetails = stockService.getAllStockDetails(stockDetailsId);
         return searchedStockDetails.map(stockDetailsEntity -> ResponseEntity.ok(mapper.map(stockDetailsEntity, StockDetailsDto.class)))
                 .orElseGet(() -> (ResponseEntity<StockDetailsDto>) ResponseEntity.notFound());

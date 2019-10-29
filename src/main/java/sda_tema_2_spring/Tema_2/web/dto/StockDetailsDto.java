@@ -7,7 +7,7 @@ import java.util.Objects;
 public class StockDetailsDto implements Serializable {
 
     private Integer id;
-    @NotNull
+    @NotNull(message = "Please set value stockDetails before sending the request")
     private String stockDetails;
 
     public Integer getId() {

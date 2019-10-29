@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sda_tema_2_spring.Tema_2.business.service.IStockService;
 import sda_tema_2_spring.Tema_2.data.entity.StockDetailsEntity;
@@ -52,6 +54,37 @@ public class StockController {
     @GetMapping("/{stockId}")
     public ResponseEntity<StockDto> getSpecificStockWithItsDetails(@PathVariable("stockId") @Valid @NotNull @Min(value = 0) Integer stockId) {
         StockEntity stockEntity = socketFacade.getSpecificStockWithItsDetails(stockId);
+        return stockWrapper(stockEntity);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CREATE')")
+    @PostMapping("/")
+    public ResponseEntity<StockDto> insertNewStockInDb(@RequestBody @Valid @NotNull StockDto requestStock, BindingResult result, Model model) {
+        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
+        if (null == newStock.getStockName() || newStock.getStockName().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+        } else {
+            StockDetailsEntity newStockDetails = mapper.map(requestStock.getStockDetailsDto(), StockDetailsEntity.class);
+            StockEntity stockEntity = socketFacade.insertNewStockInDb(newStock, newStockDetails);
+            Link selfRef = linkTo(StockController.class).slash(stockEntity.getStockId()).withSelfRel();
+            return ResponseEntity.created(URI.create(selfRef.getHref())).body(mapper.map(stockEntity, StockDto.class));
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @PutMapping("/")
+    public ResponseEntity<StockDto> updateExistingStockInDb(@RequestBody @Valid @NotNull StockDto requestStock) {
+        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
+        if (null == newStock.getStockName() || newStock.getStockName().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+        } else {
+            StockDetailsEntity newStockDetails = mapper.map(requestStock.getStockDetailsDto(), StockDetailsEntity.class);
+            socketFacade.updateExistingStockInDb(newStock, newStockDetails);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    private ResponseEntity<StockDto> stockWrapper(StockEntity stockEntity) {
         if (null != stockEntity) {
             StockDto stockDto = mapper.map(stockEntity, StockDto.class);
             Link stockDetailsLink = linkTo(StockDetailsController.class).slash(stockEntity.getStockDetailsEntity().getStockDetailsId()).withRel("stockDetails");
@@ -60,21 +93,5 @@ public class StockController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @PreAuthorize("hasRole('ROLE_CREATE')")
-    @PostMapping("/")
-    public ResponseEntity<StockDto> insertNewStockInDb(@NotNull StockDto requestStock) {
-/*        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
-        StockDetailsEntity newStockDetails = mapper.map(requestStock.getStockDetailsDto(), StockDetailsEntity.class);
-        newStock.setStockDetailsEntity(newStockDetails);
-        newStockDetails.setStockEntity(newStock);
-        newStock = stockService.insertNewStockInDb(newStock);
-        StockDto response = mapper.map(newStock, StockDto.class);
-
-        Link stockDetailsLink = linkTo(StockDetailsController.class).slash(newStock.getStockId()).withSelfRel();
-        response.add(stockDetailsLink);
-        return ResponseEntity.created(URI.create(stockDetailsLink.getHref())).build();*/
-        return null;
     }
 }

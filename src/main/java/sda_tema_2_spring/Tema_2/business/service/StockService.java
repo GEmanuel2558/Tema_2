@@ -1,8 +1,6 @@
 package sda_tema_2_spring.Tema_2.business.service;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -12,9 +10,7 @@ import sda_tema_2_spring.Tema_2.data.entity.StockDetailsEntity;
 import sda_tema_2_spring.Tema_2.data.entity.StockEntity;
 import sda_tema_2_spring.Tema_2.data.repository.StockDao;
 import sda_tema_2_spring.Tema_2.data.repository.StockDetailsDao;
-import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDb;
-import sda_tema_2_spring.Tema_2.web.dto.StockDetailsDto;
-import sda_tema_2_spring.Tema_2.web.dto.StockDto;
+import sda_tema_2_spring.Tema_2.exceptions.custom.NoInformationInTheDbException;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -36,14 +32,21 @@ public class StockService implements IStockService {
     }
 
     @Transactional(readOnly = true)
-    public StockEntity getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDb {
+    public StockEntity getAllStocksWithStockDetails(@NotNull @Min(value = 0) Integer stockId) throws NoInformationInTheDbException {
         Optional<StockEntity> stock = stockRepository.findById(stockId);
-        return stock.orElseThrow(NoInformationInTheDb::new);
+        return stock.orElseThrow(NoInformationInTheDbException::new);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public StockEntity insertNewStockInDb(@NotNull StockEntity requestStock) {
         return stockRepository.save(requestStock);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public StockEntity updateExistingStockInDb(@NotNull StockEntity requestStock) {
+        stockRepository.updateStock(requestStock.getStockName(), requestStock.getStockId());
+        stockDetailsRepository.updateStock(requestStock.getStockDetailsEntity().getStockDetails(), requestStock.getStockDetailsEntity().getStockDetailsId());
+        return requestStock;
     }
 
     @Transactional(readOnly = true)

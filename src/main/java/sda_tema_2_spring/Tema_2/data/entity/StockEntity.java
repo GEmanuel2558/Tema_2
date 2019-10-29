@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "stocks", schema = "sda_proiect_comun1", uniqueConstraints = {@UniqueConstraint(columnNames = "stock_name")})
+@Table(name = "stocks", schema = "sda_proiect_comun1", uniqueConstraints = {@UniqueConstraint(columnNames = "stock_name", name = "sock name must be unique")})
 public class StockEntity implements Serializable {
 
     @Id

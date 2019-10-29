@@ -4,16 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class NoInformationInTheDb extends RuntimeException {
+public class NoInformationInTheDbException extends RuntimeException {
 
-    public NoInformationInTheDb() {
+    public NoInformationInTheDbException() {
     }
 
-    public NoInformationInTheDb(String message) {
+    public NoInformationInTheDbException(String message) {
         super(message);
     }
 
-    public NoInformationInTheDb(String message, Throwable cause) {
+    public NoInformationInTheDbException(String message, Throwable cause) {
         super(message, cause);
     }
 }
