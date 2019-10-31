@@ -15,4 +15,6 @@ public interface ISocketFacade {
 
     StockEntity updateExistingStockInDb(@NotNull StockEntity newSocket, @NotNull StockDetailsEntity newStockDetails);
 
+    boolean deleteExistingStockInDb(@NotNull StockEntity newSocket, @NotNull StockDetailsEntity newStockDetails);
+
 }

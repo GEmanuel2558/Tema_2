@@ -16,6 +16,8 @@ public interface IStockService {
 
     StockEntity updateExistingStockInDb(@NotNull StockEntity requestStock);
 
+    boolean deleteExistingStockInDb(@NotNull StockEntity requestStock);
+
     Optional<StockDetailsEntity> getAllStockDetails(@NotNull @Min(value = 0) Integer stockDetailsId);
 
 }

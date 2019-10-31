@@ -105,4 +105,15 @@ public class SocketFacade implements ISocketFacade {
                 }).getOrNull();
     }
 
+    @Override
+    public boolean deleteExistingStockInDb(@NotNull StockEntity newSocket, @NotNull StockDetailsEntity newStockDetails) {
+        newSocket.setStockDetailsEntity(newStockDetails);
+        newStockDetails.setStockEntity(newSocket);
+        Supplier<Boolean> dateSupplier = circuitController
+                .circuitBreaker("Emy_" + ThreadLocalRandom.current().nextInt())
+                .decorateSupplier(() -> stockService.deleteExistingStockInDb(newSocket));
+        Try<Boolean> result = Try.ofSupplier(dateSupplier);
+        return result.getOrElse(false);
+    }
+
 }

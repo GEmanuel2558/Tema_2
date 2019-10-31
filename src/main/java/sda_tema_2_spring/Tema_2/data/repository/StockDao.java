@@ -17,4 +17,5 @@ public interface StockDao extends CrudRepository<StockEntity, Integer> {
     @Query("update StockEntity u set u.stockName = ?1 where u.stockId = ?2")
     void updateStock(String stockName, Integer stockId);
 
+
 }

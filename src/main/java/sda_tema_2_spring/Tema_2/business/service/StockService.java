@@ -49,6 +49,13 @@ public class StockService implements IStockService {
         return requestStock;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public boolean deleteExistingStockInDb(@NotNull StockEntity requestStock) {
+        stockRepository.deleteById(requestStock.getStockId());
+        stockDetailsRepository.deleteById(requestStock.getStockDetailsEntity().getStockDetailsId());
+        return true;
+    }
+
     @Transactional(readOnly = true)
     public Optional<StockDetailsEntity> getAllStockDetails(@NotNull @Min(value = 0) Integer stockDetailsId) {
         return stockDetailsRepository.findById(stockDetailsId);

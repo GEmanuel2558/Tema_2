@@ -84,6 +84,23 @@ public class StockController {
         }
     }
 
+
+    @PreAuthorize("hasRole('ROLE_DELETE')")
+    @DeleteMapping("/")
+    public ResponseEntity<StockDto> deleteExistingStockInDb(@RequestBody @Valid @NotNull StockDto requestStock) {
+        StockEntity newStock = mapper.map(requestStock, StockEntity.class);
+        if (null == newStock.getStockName() || newStock.getStockName().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+        } else {
+            StockDetailsEntity newStockDetails = mapper.map(requestStock.getStockDetailsDto(), StockDetailsEntity.class);
+            if(socketFacade.deleteExistingStockInDb(newStock, newStockDetails)) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
+        }
+    }
+
     private ResponseEntity<StockDto> stockWrapper(StockEntity stockEntity) {
         if (null != stockEntity) {
             StockDto stockDto = mapper.map(stockEntity, StockDto.class);
